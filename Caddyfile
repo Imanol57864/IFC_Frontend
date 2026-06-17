@@ -1,0 +1,26 @@
+internationalfoodscontrol.duckdns.org {
+
+    handle /auth/* {
+        reverse_proxy kong:8000
+    }
+
+    handle /rest/* {
+        reverse_proxy kong:8000
+    }
+
+    handle /storage/* {
+        reverse_proxy kong:8000
+    }
+
+    handle /realtime/* {
+        reverse_proxy kong:8000
+    }
+
+    handle /functions/* {
+        reverse_proxy kong:8000
+    }
+
+    handle {
+        reverse_proxy app:3000
+    }
+}

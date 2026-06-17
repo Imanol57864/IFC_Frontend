@@ -1,0 +1,37 @@
+# docker compose up --build -d 
+
+services:
+  app:
+    build:     # 'build' le dice a compose que use el Dockerfile local
+      context: .           # Ubicación de tu proyecto
+      dockerfile: Dockerfile # nombre del dockerfile
+    expose:
+      - "3000"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - SUPABASE_URL=${SUPABASE_URL} # http://kong:8000
+      - SUPABASE_KEY=${SUPABASE_KEY}
+    restart: always
+    networks:
+      - ifc
+
+  caddy:
+    image: caddy:latest
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - ifc
+
+volumes:
+  caddy_data:
+  caddy_config:
+
+networks:
+  ifc:
+    external: true
