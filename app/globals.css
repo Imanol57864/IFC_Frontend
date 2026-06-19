@@ -33,7 +33,7 @@
 
 @layer components {
   .app-header {
-    @apply fixed left-0 top-0 z-[1000] flex min-h-[76px] w-full items-center justify-between gap-4 border-b border-white/35 bg-white/85 px-[clamp(16px,4vw,34px)] py-3 shadow-sm backdrop-blur-xl;
+    @apply fixed left-0 top-0 z-[1000] flex min-h-[76px] w-full items-center justify-between gap-4 border-b border-white/35 bg-white/85 px-[clamp(16px,4vw,34px)] py-3 shadow-sm backdrop-blur-[1px];
   }
 
   .app-eyebrow { @apply text-[11px] font-bold uppercase tracking-[0.16em] text-ifc-green; }
@@ -125,7 +125,7 @@
   .desc-text { @apply mb-1 overflow-hidden text-left text-[0.9rem] leading-snug; overflow-wrap: break-word; white-space: normal; }
   .desc-card { @apply rounded-lg border border-ifc-border bg-white p-2 shadow-sm; }
 
-  .confirm-overlay { @apply fixed inset-0 z-[9999] flex items-center justify-center bg-ifc-ink/55 p-4 opacity-100 backdrop-blur-sm transition-opacity duration-200; }
+  .confirm-overlay { @apply fixed inset-0 z-[9999] flex items-center justify-center bg-ifc-ink/55 p-4 opacity-100 backdrop-blur-[1px] transition-opacity duration-200; }
   .confirm-overlay.hide { @apply pointer-events-none opacity-0; }
   .popup-panel { @apply w-[min(92vw,620px)] rounded-lg border border-white/70 bg-white p-[clamp(20px,4vw,30px)] text-center shadow-2xl; }
   .popup-panel-sm { @apply max-w-[440px]; }

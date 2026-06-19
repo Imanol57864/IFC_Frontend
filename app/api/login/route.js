@@ -19,7 +19,7 @@ export async function POST(request) {
         } else if (error.message.includes("Email not confirmed")) {
           message = "Tu email aun no ha sido confirmado.";
         } else {
-          message = "El login falló, favor de reportarlo.";
+          message = error;
         }
       } else {
         const response = NextResponse.redirect(
@@ -34,7 +34,7 @@ export async function POST(request) {
     return redirectToLogin(request, message);
   } catch (error) {
     console.error("Login route failed:", error);
-    return redirectToLogin(request, "El login fallo, favor de reportarlo.");
+    return redirectToLogin(request, "El ingreso a la plataforma falló, favor de reportarlo.");
   }
 }
 

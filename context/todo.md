@@ -1,4 +1,5 @@
 ﻿A. Total beatdown de tablero de laboratorios
+- Actualización en tiempo real
 
 B. Brainstorm una mejor UX de analisis, piensa sin limites
 
@@ -6,6 +7,22 @@ B. Brainstorm una mejor UX de analisis, piensa sin limites
 1. Los cambios de la tabla de analisis si llegan, pero no se actualizan en tiempo real.
 2. Crear un analisis lanza un error, es por los nombres de los archivos
 
+
+
+1. Corregir descarga de PDF
+     a. Se calculan y no aparecen 
+     b. El signo en el pdf
+4. Editable los Statics
+5. PDF descargar análisis seleccionados
+
+Opción para que la edición sea mucho más cohesiva plis, estar saltando para crear un analisis no es nada comodo
+
+Hola, ya le comenté a Elena de lo que mencionaste, comentó que en caso de que se quieran borrar los laboratorios se agregará el eliminar estos con una contraseña, pero que también existiera un respaldo de Excel  de lo eliminado
+
+
+Limbo
+-> Codigo de los análisis
+-> No eligen una divisa por laboratorio, solo formatean el precio comunicado al cliente
 
 
 Tablero de archivos para laboratorios
