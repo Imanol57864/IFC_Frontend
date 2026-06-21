@@ -22,8 +22,14 @@ export async function POST(request) {
           message = error;
         }
       } else {
+        console.log({
+          url: request.url,
+          host: request.headers.get("host"),
+          xfh: request.headers.get("x-forwarded-host"),
+          xfp: request.headers.get("x-forwarded-proto"),
+        });
         const response = NextResponse.redirect(
-          new URL("/main_catalog/laboratories", process.env.NEXT_PUBLIC_SUPABASE_URL),
+          new URL("/main_catalog/laboratories", request.url),
           { status: 303 }
         );
         setAuthCookies(response, data.session);
@@ -39,8 +45,14 @@ export async function POST(request) {
 }
 
 function redirectToLogin(request, message) {
+  console.log({
+    url: request.url,
+    host: request.headers.get("host"),
+    xfh: request.headers.get("x-forwarded-host"),
+    xfp: request.headers.get("x-forwarded-proto"),
+  });
   return NextResponse.redirect(
-    new URL(`/login?error=${encodeURIComponent(message)}`, process.env.NEXT_PUBLIC_SUPABASE_URL),
+    new URL(`/login?error=${encodeURIComponent(message)}`, request.url),
     { status: 303 }
   );
 }
