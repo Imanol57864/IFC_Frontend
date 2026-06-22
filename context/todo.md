@@ -1,4 +1,5 @@
 ﻿## Done
+* [X] Proxying and cookies correctly implemented for prod env.
 * [X] Los análisis se borran en modo LIVE.
 * [ ] Los análisis se crean en modo LIVE.
 No recibe nada, no activa ningun console.log(test)
