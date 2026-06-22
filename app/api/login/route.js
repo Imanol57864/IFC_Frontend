@@ -28,8 +28,12 @@ export async function POST(request) {
           xfh: request.headers.get("x-forwarded-host"),
           xfp: request.headers.get("x-forwarded-proto"),
         });
+        const host = request.headers.get("host");
+        const proto = request.headers.get("x-forwarded-proto") ?? "http";
+        const baseUrl = `${proto}://${host}`;
+        ///
         const response = NextResponse.redirect(
-          new URL("/main_catalog/laboratories", request.url),
+          new URL("/main_catalog/laboratories", baseUrl),
           { status: 303 }
         );
         setAuthCookies(response, data.session);
@@ -51,8 +55,13 @@ function redirectToLogin(request, message) {
     xfh: request.headers.get("x-forwarded-host"),
     xfp: request.headers.get("x-forwarded-proto"),
   });
+  const host = request.headers.get("host");
+  const proto = request.headers.get("x-forwarded-proto") ?? "http";
+  const baseUrl = `${proto}://${host}`;
+  console.log(baseUrl);
+  ///
   return NextResponse.redirect(
-    new URL(`/login?error=${encodeURIComponent(message)}`, request.url),
+    new URL(`/login?error=${encodeURIComponent(message)}`, baseUrl),
     { status: 303 }
   );
 }
