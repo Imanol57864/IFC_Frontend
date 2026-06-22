@@ -1,5 +1,7 @@
 # Test environment is just running "npm i" "npm run dev" with node -v = 20+
 
+# Force new environment with: docker compose up --build --force-recreate -d
+
 # docker compose up --build -d 
 
 services:

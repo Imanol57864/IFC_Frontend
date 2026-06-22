@@ -28,6 +28,7 @@ export async function POST(request) {
           { status: 303 }
         );
         setAuthCookies(response, data.session);
+        response.headers.set("Cache-Control", "no-store");
         return response;
       }
     }
