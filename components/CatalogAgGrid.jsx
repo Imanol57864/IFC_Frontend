@@ -182,7 +182,7 @@ export default function CatalogAgGrid() {
     eurButton?.addEventListener("click", onEurClick);
     window.addEventListener(CURRENCY_RATES_CHANGED_EVENT, onRatesChanged);
     const pdfButton = document.getElementById("download-pdf");
-    const onPdfClick = () => exportPdf(apiRef.current);
+    const onPdfClick = () => exportPdf(apiRef.current, rowCurrencyCacheRef, divisaDestinoRef.current);
     pdfButton?.addEventListener("click", onPdfClick);
     const createButton = document.getElementById("create-analysis");
     const onCreateClick = () => createAnalysis(loadAnalisis);
@@ -466,9 +466,8 @@ function formatCurrency(value, divisa) {
   return `${divisa} $${entero}.${decimal}`;
 }
 
-async function exportPdf(api) {
+async function exportPdf(api, currencyCacheRef, selectedCurrency) {
   if (!api) return alert("No se pudo cargar el exportador PDF.");
-
   const [{ jsPDF }, autoTableModule] = await Promise.all([
     import("jspdf"),
     import("jspdf-autotable")
@@ -476,18 +475,19 @@ async function exportPdf(api) {
   const autoTable = autoTableModule.default;
 
   const rows = [];
+  const destinoRef = { current: selectedCurrency };
   api.forEachNodeAfterFilterAndSort((node) => {
     const row = node.data;
     rows.push([
       row.id_analisis,
       descriptionText(row),
       row.y_cantidad ?? "",
-      row.y_precio ?? "",
+      currencyFormatter({ value: row.y_precio, data: row }, currencyCacheRef, destinoRef),
       row.y_categoria ?? "",
-      row.c_costo ?? "",
+      costCurrencyFormatter({ value: row.c_costo, data: row }, currencyCacheRef),
       row.c_factor ?? "",
-      row.c_envio ?? "",
-      row.c_utilidad ?? ""
+      currencyFormatter({ value: row.c_envio, data: row }, currencyCacheRef, destinoRef),
+      currencyFormatter({ value: row.c_utilidad, data: row }, currencyCacheRef, destinoRef)
     ]);
   });
   const doc = new jsPDF({ orientation: "landscape" });
