@@ -19,7 +19,7 @@ import {
 } from "./agGridShared";
 
 const FILE_FIELD = "analisis_file";
-const DIVISAS = ["USD", "EUR", "MXN", "CAD", "CNY"];
+const DIVISAS = ["USD", "EUR", "MXN"];
 const COBERTURAS = ["Internacional - IFC", "Nacional - IFC LABS"];
 
 export default function LaboratoriesAgGrid() {

@@ -2,7 +2,8 @@
 
 import { useEffect, useRef } from "react";
 import { DEFAULT_GRID_OPTIONS, GRID_CLASS_NAME, GRID_STYLE, applyRealtimeRowEvent, makeButton, postJson, readJsonResponse, sendCellChange, setRows, subscribeToTableChanges, useAgGrid, useQuickFilter } from "./agGridShared";
-import { analysisPayloadEventForLab, tablePayloadEvent } from "@/lib/realtimePayloads";
+import { analysisPayloadEventForLab } from "@/lib/realtimePayloads";
+import { CURRENCY_RATES_CHANGED_EVENT } from "./CurrencyRateInputs";
 
 const DESCRIPTION_FIELDS = {
   desc_toptext: "Nombre: ",
@@ -157,14 +158,29 @@ export default function CatalogAgGrid() {
   useQuickFilter(apiRef);
 
   useEffect(() => {
-    document.getElementById("btn_changeto_mxn")?.addEventListener("click", () => setNewDivisa("MXN"));
-    document.getElementById("btn_changeto_usd")?.addEventListener("click", () => setNewDivisa("USD"));
-    document.getElementById("btn_changeto_eur")?.addEventListener("click", () => setNewDivisa("EUR"));
+    const mxnButton = document.getElementById("btn_changeto_mxn");
+    const usdButton = document.getElementById("btn_changeto_usd");
+    const eurButton = document.getElementById("btn_changeto_eur");
+    const onMxnClick = () => setNewDivisa("MXN");
+    const onUsdClick = () => setNewDivisa("USD");
+    const onEurClick = () => setNewDivisa("EUR");
+    const onRatesChanged = () => apiRef.current?.refreshCells({ force: true });
+
+    mxnButton?.addEventListener("click", onMxnClick);
+    usdButton?.addEventListener("click", onUsdClick);
+    eurButton?.addEventListener("click", onEurClick);
+    window.addEventListener(CURRENCY_RATES_CHANGED_EVENT, onRatesChanged);
     const pdfButton = document.getElementById("download-pdf");
     const onPdfClick = () => exportPdf(apiRef.current);
     pdfButton?.addEventListener("click", onPdfClick);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-    return () => pdfButton?.removeEventListener("click", onPdfClick);
+    return () => {
+      mxnButton?.removeEventListener("click", onMxnClick);
+      usdButton?.removeEventListener("click", onUsdClick);
+      eurButton?.removeEventListener("click", onEurClick);
+      window.removeEventListener(CURRENCY_RATES_CHANGED_EVENT, onRatesChanged);
+      pdfButton?.removeEventListener("click", onPdfClick);
+    };
   }, []);
 
   return <div ref={gridRef} id="table" className={GRID_CLASS_NAME} style={GRID_STYLE} />;
@@ -332,15 +348,18 @@ function numberParser(params) {
 }
 
 function currencyRates() {
-  const mxnToUsdText = document.getElementById("estatico_1")?.querySelector("p")?.textContent || "$ 1";
-  const mxnToEurText = document.getElementById("estatico_2")?.querySelector("p")?.textContent || "$ 1";
-  const mxnToUsd = parseFloat(mxnToUsdText.replace("$", "").trim()) || 1;
-  const mxnToEur = parseFloat(mxnToEurText.replace("$", "").trim()) || 1;
+  const mxnToUsd = positiveRateFromInput("estatico_1");
+  const mxnToEur = positiveRateFromInput("estatico_2");
   return {
     MXN: { MXN: 1, USD: 1 / mxnToUsd, EUR: 1 / mxnToEur },
     USD: { MXN: mxnToUsd, USD: 1, EUR: mxnToEur / mxnToUsd },
     EUR: { MXN: mxnToEur, USD: mxnToUsd / mxnToEur, EUR: 1 }
   };
+}
+
+function positiveRateFromInput(id) {
+  const value = Number(document.getElementById(id)?.querySelector("input")?.value);
+  return Number.isFinite(value) && value > 0 ? value : 1;
 }
 
 function currencyFormatter(params, baseRef, destinoRef) {

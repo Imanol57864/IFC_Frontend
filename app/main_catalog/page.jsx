@@ -1,11 +1,11 @@
 ﻿import Link from "next/link";
 import { requirePageUser } from "@/lib/auth";
-import { queryLabsNames, queryStaticInfo } from "@/lib/catalog";
 import PageChrome from "@/components/PageChrome";
 import LoadScreen from "@/components/LoadScreen";
 import ConfirmPopup from "@/components/ConfirmPopup";
 import EditDescPopup from "@/components/EditDescPopup";
 import CatalogAgGrid from "@/components/LazyCatalogAgGrid";
+import CurrencyRateInputs from "@/components/CurrencyRateInputs";
 import { Panel, PanelBody } from "@/components/Panel";
 
 export const metadata = {
@@ -13,11 +13,7 @@ export const metadata = {
 };
 
 export default async function CatalogPage() {
-  const { supabase, user } = await requirePageUser();
-  const [labsNames, staticInfo] = await Promise.all([
-    queryLabsNames(supabase),
-    queryStaticInfo(supabase)
-  ]);
+  const { user } = await requirePageUser();
 
   return (
     <>
@@ -42,14 +38,7 @@ export default async function CatalogPage() {
                 </div>
               </div>
 
-              <div className="catalog-rate-strip">
-                {staticInfo.map((item) => (
-                  <div className="metric" id={`estatico_${item.id}`} key={item.id}>
-                    <h4>{item.marker}</h4>
-                    <p>$ {Number(item.value || 0).toFixed(2)}</p>
-                  </div>
-                ))}
-              </div>
+              <CurrencyRateInputs userId={user.id} />
             </div>
           </PanelBody>
 

@@ -120,8 +120,9 @@
   .metric h4 { @apply text-xs font-semibold uppercase tracking-wide text-ifc-muted; }
   .metric p { @apply mt-1 text-lg font-bold text-ifc-green; }
   .catalog-rate-strip .metric { @apply grid min-h-12 grid-cols-[auto_auto] items-center justify-between gap-2 px-3 py-2 text-left; }
-  .catalog-rate-strip .metric h4 { @apply text-[11px]; }
-  .catalog-rate-strip .metric p { @apply mt-0 whitespace-nowrap text-base; }
+  .catalog-rate-strip .metric > span:first-child { @apply text-[11px] font-semibold uppercase tracking-wide text-ifc-muted; }
+  .currency-rate-control { @apply flex items-center gap-1 whitespace-nowrap text-base font-bold text-ifc-green; }
+  .currency-rate-control input { @apply w-20 rounded-md border border-ifc-border bg-white px-2 py-1 text-right font-bold text-ifc-green outline-none focus:border-ifc-green-light focus:ring-2 focus:ring-ifc-green-light/15; }
   .currency-metric { @apply grid h-full place-items-center; }
 
   #table.ag-theme-quartz {
@@ -219,8 +220,8 @@
     .catalog-search .search_at_table,
     .catalog-rate-strip .metric { @apply min-h-11; }
     .catalog-rate-strip .metric { @apply px-3 py-1.5; }
-    .catalog-rate-strip .metric p { @apply text-sm; }
-    .catalog-rate-strip .metric h4 { @apply text-[10px]; }
+    .catalog-rate-strip .metric > span:first-child { @apply text-[10px]; }
+    .currency-rate-control { @apply text-sm; }
   }
 
   @media (max-width: 960px) {
@@ -273,8 +274,8 @@
     .catalog-command-cluster .btn-primary,
     .catalog-command-cluster .btn-secondary { @apply px-2.5 py-1.5 text-xs; }
     .catalog-rate-strip .metric { @apply px-2.5 py-1.5; grid-template-columns: auto auto; }
-    .catalog-rate-strip .metric h4 { @apply text-[10px]; }
-    .catalog-rate-strip .metric p { @apply text-sm; }
+    .catalog-rate-strip .metric > span:first-child { @apply text-[10px]; }
+    .currency-rate-control { @apply text-sm; }
   }
 
   @media (max-width: 480px) {
