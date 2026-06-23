@@ -9,7 +9,7 @@ https://internationalfoodscontrol.duckdns.org/login
 - [x] Los laboratorios se borran en modo LIVE.
 - [x] Los laboratorios se crean en modo LIVE.
 - [x] Los laboratorios se editan en modo LIVE.
-- [x] Eliminar laboratorios necesita una validación escrita de un usuario de area administrativa.
+- [x] Eliminar laboratorios necesitan una validación escrita de un usuario de area administrativa.
 - [] Justo antes de eliminar un laboratorio, el usuario debe recibir un archivo Excel/PDF de todos los análisis y la información del laboratorio, y entonces allí podrá borrarlo.
 - [] [BUG] Eliminar laboratorios no borra los sus archivos anclados a sus análisis children. (pues claro, solo responden al cascade de laboratorio, no al cascade de la row que indica el path de la bucket... sql fix)
 
@@ -19,7 +19,7 @@ https://internationalfoodscontrol.duckdns.org/login
 - [x] Los análisis se editan en modo LIVE.
 - [x] Creación cohesiva de análisis en el tablero correspondiente. 
 - [x] Solo se normaliza la palabra clave del laboratorio para el ID del análisis.
-- [x] Eliminar análisis necesita una validación escrita de un usuario de area administrativa.
+- [x] Eliminar análisis necesitan una validación escrita de un usuario de area administrativa.
 - [] [BUG] La búsqueda universal en el tablero de análisis no busca a en la descripción porque es información que no existe en la celda. Cambialo para que búsque también en las celdas hidden, porque allí si se encuentra la información.
 
 ## Archivos
