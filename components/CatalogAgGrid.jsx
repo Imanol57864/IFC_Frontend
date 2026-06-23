@@ -366,7 +366,7 @@ function filesViewRenderer(params) {
 function actionsRenderer(params) {
   return makeButton("Eliminar", async () => {
     const id = params.data.id_analisis;
-    const confirmacion = await window.confirmPopup?.(`¿Quieres borrar el análisis "${id}"?`);
+    const confirmacion = await window.confirmPopup?.(`¿Quieres borrar el análisis "${id}"?`, id, "análisis");
     if (!confirmacion) return false;
     window.activateLoadScreen?.();
 

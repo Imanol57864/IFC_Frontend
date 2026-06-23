@@ -126,7 +126,11 @@ function actionsRenderer(params) {
   const row = params.data;
 
   wrapper.appendChild(makeButton("Eliminar", async () => {
-    const confirmacion = await window.confirmPopup?.(`¿Quieres borrar el laboratorio "${row.nombre_lab}"?`);
+    const confirmacion = await window.confirmPopup?.(
+      `¿Quieres borrar el laboratorio "${row.nombre_lab}"?`,
+      row.nombre_lab,
+      "laboratorio"
+    );
     if (!confirmacion) return false;
     window.activateLoadScreen?.();
 

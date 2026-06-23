@@ -45,10 +45,33 @@ function readDescriptionForm(rowData) {
 
 export default function PopupRuntime() {
   useEffect(() => {
-    window.confirmPopup = (message) => {
+    window.confirmPopup = (message, expectedName, entity = "elemento") => {
       const text = document.getElementById("confirmPopup-msg");
+      const validation = document.getElementById("confirmPopup-validation");
+      const input = document.getElementById("confirmPopup-input");
+      const expected = document.getElementById("confirmPopup-expected");
+      const entityText = document.getElementById("confirmPopup-entity");
+      const accept = document.getElementById("confirmPopup-true");
+      const requiresName = expectedName !== undefined && expectedName !== null;
+      const expectedValue = String(expectedName ?? "");
+
       if (text) text.textContent = message;
-      return resolvePopup("confirmPopup");
+      if (validation) validation.hidden = !requiresName;
+      if (expected) expected.textContent = expectedValue;
+      if (entityText) entityText.textContent = entity;
+      if (input) {
+        input.value = "";
+        input.oninput = () => {
+          if (accept) accept.disabled = input.value !== expectedValue;
+        };
+      }
+      if (accept) accept.disabled = requiresName;
+      if (requiresName) window.setTimeout(() => input?.focus(), 0);
+
+      return resolvePopup("confirmPopup", () => {
+        if (requiresName && input?.value !== expectedValue) return false;
+        return true;
+      });
     };
 
     window.addFilePopup = () => resolvePopup("addFilePopup");
