@@ -39,9 +39,9 @@ https://internationalfoodscontrol.duckdns.org/login
 - [] Selector/Visor que indique el precio que desea mostrar según el año seleccionado. Precio desde fecha de creación del análisis + (1+var_interés * años desde creación), y editable esa cantidad de interés.
 
 ## Reportes
+- [] [BUG] El signo de divisa no aparece al descargar PDF.
 - [] Descarga de EXCEL de la vista actual formateada para catálogo de análisis.
 - [] Descarga de PDF de la vista actual formateada para catálogo de análisis.
-- [] [BUG] El signo de divisa no aparece al descargar PDF.
 - [] Agregar diseño profesional de la empresa.
 
 ## Sesiones
