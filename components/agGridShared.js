@@ -2,9 +2,10 @@
 
 import { AllCommunityModule, ModuleRegistry, createGrid } from "ag-grid-community";
 import { useEffect, useRef } from "react";
-import { getBrowserSupabase } from "@/lib/supabaseBrowser";
+import { getAuthenticatedBrowserSupabase } from "@/lib/supabaseBrowser";
 
 let modulesRegistered = false;
+let realtimeSubscriptionId = 0;
 
 export const DEFAULT_GRID_OPTIONS = {
   rowData: [],
@@ -122,21 +123,43 @@ export function applyRealtimeRowEvent({ api, rowsRef, data, idField, reload }) {
 }
 
 export function subscribeToTableChanges({ channelName, table, onPayload }) { // filter, onPayload }) {
-  const supabase = getBrowserSupabase();
   const changes = { event: "*", schema: "public", table };
   // if (filter) changes.filter = filter;
+  const subscriptionName = `${channelName}:${++realtimeSubscriptionId}`;
+  let channel = null;
+  let closed = false;
+  let closePromise = null;
 
-  const channel = supabase
-    .channel(channelName)
-    .on("postgres_changes", changes, onPayload)
-    .subscribe((status, error) => {
-      if (error || status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
-        console.error("Supabase realtime subscription failed", { channelName, status, error });
-      }
+  const startPromise = getAuthenticatedBrowserSupabase()
+    .then((supabase) => {
+      if (closed) return supabase;
+
+      channel = supabase
+        .channel(subscriptionName)
+        .on("postgres_changes", changes, onPayload)
+        .subscribe((status, error) => {
+          if (error || status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+            console.error("Supabase realtime subscription failed", { channelName, status, error });
+          }
+        });
+
+      return supabase;
+    })
+    .catch((error) => {
+      console.error("Supabase realtime authentication failed", { channelName, error });
+      return null;
     });
 
   return {
-    close: () => supabase.removeChannel(channel)
+    close: () => {
+      if (closePromise) return closePromise;
+      closed = true;
+      closePromise = startPromise.then((supabase) => {
+        if (!supabase || !channel) return "ok";
+        return supabase.removeChannel(channel);
+      });
+      return closePromise;
+    }
   };
 }
 
