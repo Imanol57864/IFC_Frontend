@@ -41,7 +41,7 @@ https://internationalfoodscontrol.duckdns.org/login
 ## Reportes
 - [x] [BUG] El signo de divisa no aparece al descargar PDF.
 - [x] Descarga de PDF de la vista actual formateada para catálogo de análisis.
-- [] Agregar diseño profesional de la empresa.
+- [x] Agregar diseño profesional de la empresa a la exportación de PDF.
 - [] Descarga de EXCEL de la vista actual formateada para catálogo de análisis.
 
 ## Sesiones

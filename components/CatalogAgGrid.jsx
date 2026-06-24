@@ -475,52 +475,53 @@ function formatCurrency(value, divisa) {
 
 async function exportPdf(api, currencyCacheRef, selectedCurrency) {
   if (!api) return alert("No se pudo cargar el exportador PDF.");
-  const [{ jsPDF }, autoTableModule] = await Promise.all([
-    import("jspdf"),
-    import("jspdf-autotable")
-  ]);
-  const autoTable = autoTableModule.default;
-
   const rows = [];
   const destinoRef = { current: selectedCurrency };
   api.forEachNodeAfterFilterAndSort((node) => {
     const row = node.data;
-    rows.push([
-      row.id_analisis,
-      pdfDescriptionText(row),
-      row.y_cantidad ?? "",
-      currencyFormatter({ value: row.y_precio, data: row }, currencyCacheRef, destinoRef),
-      String(row.y_categoria || "Sin categoría").trim(),
-      costCurrencyFormatter({ value: row.c_costo, data: row }, currencyCacheRef),
-      row.c_factor ?? "",
-      currencyFormatter({ value: row.c_envio, data: row }, currencyCacheRef, destinoRef),
-      currencyFormatter({ value: row.c_utilidad, data: row }, currencyCacheRef, destinoRef)
-    ]);
+    rows.push({
+      code: row.id_analisis,
+      description: pdfDescriptionText(row),
+      quantity: row.y_cantidad ?? "",
+      price: currencyFormatter({ value: row.y_precio, data: row }, currencyCacheRef, destinoRef),
+      category: String(row.y_categoria || "Sin categoría").trim(),
+      cost: costCurrencyFormatter({ value: row.c_costo, data: row }, currencyCacheRef),
+      factor: row.c_factor ?? "",
+      shipping: currencyFormatter({ value: row.c_envio, data: row }, currencyCacheRef, destinoRef),
+      profit: currencyFormatter({ value: row.c_utilidad, data: row }, currencyCacheRef, destinoRef)
+    });
   });
-  const doc = new jsPDF({ orientation: "landscape" });
-  const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
-  const hoy = new Date().toLocaleDateString('es-ES', opciones);
-  doc.text(`Reporte de los análisis a ${hoy}`, 14, 18);
-  autoTable(doc, {
-    startY: 26,
-    head: [["Código", "Descripción", "Cantidad", "Precio", "Categoría", "Costo", "Factor", "Envío", "Utilidad"]],
-    body: rows,
-    styles: { fontSize: 7.5, cellPadding: 2, overflow: "linebreak", valign: "top" },
-    headStyles: { fillColor: [15, 81, 50], textColor: 255, fontStyle: "bold", halign: "center" },
-    alternateRowStyles: { fillColor: [245, 245, 245] },
-    columnStyles: {
-      0: { cellWidth: 22 },
-      1: { cellWidth: 82 },
-      2: { cellWidth: 16, halign: "center" },
-      3: { cellWidth: 24, halign: "right" },
-      4: { cellWidth: 30 },
-      5: { cellWidth: 24, halign: "right" },
-      6: { cellWidth: 16, halign: "center" },
-      7: { cellWidth: 24, halign: "right" },
-      8: { cellWidth: 24, halign: "right" }
+
+  window.activateLoadScreen?.();
+  try {
+    const response = await fetch("/api/export-analysis-pdf", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        rows,
+        selectedCurrency: selectedCurrency || "Sin divisa. (Original)"
+      })
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      return alert(error.message || "No se pudo generar el PDF.");
     }
-  });
-  doc.save("data.pdf");
+
+    const url = URL.createObjectURL(await response.blob());
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "reporte-analisis.pdf";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("No se pudo descargar el PDF.", error);
+    alert("No se pudo generar el PDF.");
+  } finally {
+    window.deactivateLoadScreen?.();
+  }
 }
 
 
