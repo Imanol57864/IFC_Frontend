@@ -16,6 +16,9 @@ export async function POST(request) {
 
   if (error) return jsonError();
 
+  // Desactivado, borrar los archivos de los análisis al borrar el análisis
+  // Será útil como feature switch.
+  /*
   const { data: files, error: listError } = await supabase.storage
     .from(FILE_BUCKET)
     .list(id_analisis, { limit: FILE_LIST_LIMIT, recursive: true });
@@ -28,5 +31,9 @@ export async function POST(request) {
     .remove(files.map((file) => `${id_analisis}/${file.name}`));
 
   if (removeError) return jsonError();
+
   return jsonOk({ message: "", data: data ?? [] });
+  */
+
+  return jsonOk();
 }

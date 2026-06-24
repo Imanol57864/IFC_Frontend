@@ -6,7 +6,6 @@ export const POST = withApiUser(async ({ supabase }) => {
     .from("catLabos")
     .select("*")
     .order("nombre_lab", { ascending: true });
-
   if (error) return jsonError();
   if (!data?.length) return jsonOk({ message: "Crea el primer laboratorio.", data: [] });
   return jsonOk({ message: "", data });

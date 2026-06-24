@@ -20,6 +20,10 @@ export async function POST(request) {
     file
   });
 
+  // Catch error, if "The object exceeded the maximum allowed size"
+  if ((error.statusCode === "413" || error.message?.includes("maximum allowed size"))
+  ) return jsonOk({ message: "El archivo excede el peso máximo permitido (12 MB).", data: [] });
+
   if (error) return jsonError("Internal Server Error.", error.status || 500);
   return jsonOk();
 }

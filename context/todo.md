@@ -11,7 +11,7 @@ https://internationalfoodscontrol.duckdns.org/login
 - [x] Los laboratorios se editan en modo LIVE.
 - [x] Eliminar laboratorios necesitan una validación escrita de un usuario de area administrativa.
 - [] Justo antes de eliminar un laboratorio, el usuario debe recibir un archivo Excel/PDF de todos los análisis y la información del laboratorio, y entonces allí podrá borrarlo.
-- [] [BUG] Eliminar laboratorios no borra los sus archivos anclados a sus análisis children. (pues claro, solo responden al cascade de laboratorio, no al cascade de la row que indica el path de la bucket... sql fix)
+- [x] [BUG] Alerta si el Código (palabra clave) o el nombre de un laboratorio ya está ocupado.
 
 ## Análisis
 - [x] Los análisis se borran en modo LIVE.
@@ -48,10 +48,17 @@ https://internationalfoodscontrol.duckdns.org/login
 - [] Cuando ingresa una persona, saca a la otra si ingresa las mismas credenciales.
 - [] Crear vistas para los usuarios que no son area administrativa.
 - [] Aumentar la duración de los tokens, expiran o no se refrezcan correctamente.
+- [] [BUG] No se está refrezcando el token correctamente. (y existe un console.log por algún lado de los errores )
+Auth token validation failed {
+  hasAccessToken: true,
+  hasRefreshToken: true,
+  message: 'invalid JWT: unable to parse or verify signature, token has invalid claims: token is expired'
+}
 
 ## Notas del desarrollador
 - LIVE funciona con realtime enabled, RLS activado y sin polizas.
 - Revisar la carpeta ./context para más información.
+- Eliminar un laboratorio o análisis no borra los archivos (PDFs) y quedan resguardados a nivel raíz. La única manera de borrar PDFs es a través del tablero de cada análisis.
 
 ## Posibles adiciones
 - PDF descargar análisis seleccionados.
@@ -60,3 +67,5 @@ https://internationalfoodscontrol.duckdns.org/login
 - Staticly, indicar que laboratorios están con acreditación activa hasta el día de hoy.
 - Los filtros de AG Table no son user-friendly.
 - ... Hacer que si se cambia la palabra clave de análisis de un laboratorio, que se refleje el cambio en todos los análisis.
+- Mejorar la UX de crear laboratorio.
+- Mejorar la UX haciendo todas las columnas allow nullable.

@@ -12,7 +12,7 @@ export async function POST(request) {
   const labname = String(form.get("labname") || "");
   const code = String(form.get("a_code") || "");
 
-  if (!file || !labname || !/^\d{3}$/.test(code)) {
+  if (!file || !labname || !code) {
     return jsonOk({ message: "Peticion incompleta.", data: [] });
   }
 

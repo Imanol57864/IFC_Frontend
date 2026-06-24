@@ -107,7 +107,7 @@ export default function PopupRuntime() {
         if (!lab) return alert("Selecciona un laboratorio."), false;
         if (!lab.codigo_lab) return alert(`Necesitas establecer el código identificador de análisis para ${lab.nombre_lab}.`), false;
         if (!fileInput?.files?.[0]) return alert("Ingresa una cotización antes de crear el análisis."), false;
-        if (!/^\d{3}$/.test(codeInput?.value || "")) return alert("Ingresa un código identificador de análisis válido."), false;
+        if (codeInput?.value == "") return alert("Ingresa un código identificador de análisis."), false;
         return { labname: lab.nombre_lab, codigoLab: lab.codigo_lab };
       });
     };

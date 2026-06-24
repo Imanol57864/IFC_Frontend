@@ -12,18 +12,6 @@ export async function POST(request) {
   const { rowId, field, newValue } = change;
   const supabase = session.supabase;
 
-  if (field === "nombre_lab") {
-    const { data, error } = await supabase
-      .from("catLabos")
-      .select("*")
-      .eq("nombre_lab", newValue);
-
-    if (error) return jsonError();
-    if (data?.length) {
-      return duplicateCellResponse(`El nombre "${data[0].nombre_lab}" ya existe esta ocupado por un laboratorio.`);
-    }
-  }
-
   if (field === "cobertura_lab" && newValue === "Nacional - IFC LABS") {
     const { error } = await updateCell(supabase, "catLabos", "nombre_lab", rowId, "divisa_lab", "MXN");
     if (error) return jsonError();
@@ -46,6 +34,20 @@ export async function POST(request) {
   }
 
   const { error } = await updateCell(supabase, "catLabos", "nombre_lab", rowId, field, newValue);
-  if (error) return jsonError();
+
+  if (error) {
+
+    // Catch unique key errors
+    if ((error.code === "23505" || error.message?.includes("violates unique constraint"))) {
+      if (error.message?.includes("catLabos_codigo_lab_key")
+      ) return duplicateCellResponse(`El código identificador ${newValue} ya se encuentra ocupado.`);
+    
+      if (error.message?.includes("catLabos_nombre_lab_key")
+      ) return duplicateCellResponse(`El nombre de laboratorio ${newValue} ya se encuentra ocupado.`);
+    } 
+    
+    return jsonError();
+  }
+
   return jsonOk();
 }
