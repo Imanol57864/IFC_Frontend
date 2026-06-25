@@ -17,6 +17,20 @@ services:
       - APP_URL=${SUPABASE_URL}
       - SUPABASE_URL=${SUPABASE_URL} # http://kong:8000
       - SUPABASE_KEY=${SUPABASE_KEY}
+      - BROWSERLESS_WS_ENDPOINT=ws://browserless:3000?token=${PUPPETER_KEY}
+    depends_on:
+      - browserless
+    restart: always
+    networks:
+      - ifc
+
+  browserless:
+    image: ghcr.io/browserless/chromium:latest
+    environment:
+      - TOKEN=${PUPPETER_KEY}
+      - TIMEOUT=120000
+      - CONCURRENT=5
+    shm_size: "1gb"
     restart: always
     networks:
       - ifc

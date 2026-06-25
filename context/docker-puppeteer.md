@@ -2,57 +2,50 @@
 
 ## Problema
 
-La generacion de PDF falla en contenedor cuando Puppeteer no encuentra el Chrome/Chromium requerido. El error aparece como 500 en `/api/export-analysis-pdf` porque `puppeteer.launch()` no puede iniciar un navegador.
+La generacion de PDF falla en contenedor cuando Puppeteer no encuentra Chrome/Chromium. El error aparece como 500 en `/api/export-analysis-pdf` porque `puppeteer.launch()` no puede iniciar un navegador.
 
-En la imagen anterior basada en `node:20-alpine`, Puppeteer quedaba instalado, pero el navegador no estaba disponible en runtime. Instalar `chromium` con `apk add` corrige el problema, pero puede aumentar bastante el tiempo de build porque Alpine tiene que descargar e instalar Chromium y sus dependencias.
+Se probaron dos enfoques dentro de la imagen de la app:
 
-## Decisión actual
+- Instalar `chromium` sobre `node:20-alpine`.
+- Usar `ghcr.io/puppeteer/puppeteer` como imagen base.
 
-Se cambio el Dockerfile para usar la imagen oficial de Puppeteer:
+Ambos corrigen la disponibilidad del navegador, pero hacen que el build de la app sea demasiado lento o pesado.
 
-```dockerfile
-FROM ghcr.io/puppeteer/puppeteer:24.43.1
+## Decision actual
+
+La app vuelve a usar `node:20-alpine` y no instala Chrome/Chromium dentro de su imagen.
+
+Chromium vive en un servicio separado de Docker Compose:
+
+```yaml
+browserless:
+  image: ghcr.io/browserless/chromium:latest
 ```
 
-Esta imagen ya incluye Node y Chrome preparado para Puppeteer. Por eso se elimino `node:20-alpine` y tambien se elimino la instalacion manual con `apk add chromium`.
+La app se conecta a ese navegador remoto con Puppeteer usando WebSocket:
 
-Tambien se configura:
-
-```dockerfile
-ENV PUPPETEER_SKIP_DOWNLOAD=true
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
+```env
+BROWSERLESS_WS_ENDPOINT=ws://browserless:3000?token=ifc-browserless
 ```
 
-`PUPPETEER_SKIP_DOWNLOAD=true` evita que `npm ci` descargue otro Chrome durante la instalacion de dependencias. `PUPPETEER_EXECUTABLE_PATH` hace que la app use el Chrome incluido en la imagen base.
+En codigo, `/api/export-analysis-pdf` usa `puppeteer.connect()` cuando existe `BROWSERLESS_WS_ENDPOINT`. Si esa variable no existe, mantiene el fallback con `puppeteer.launch()` para entornos locales o alternativos.
 
-## Por que no mezclar Alpine con la imagen de Puppeteer
+## Por que esto mejora el build
 
-ghcr.io/puppeteer/puppeteer:24.43.1 ya es una imagen base completa con Node + Chrome listo para Puppeteer.
+El build de la app ya no descarga ni instala Chromium. La imagen de la app queda enfocada en Node, dependencias de npm y el build de Next.
 
-La razón: no conviene mezclar node:20-alpine en deps/builder y una imagen Puppeteer Debian/Ubuntu en runner, porque node_modules puede instalar binarios distintos para Alpine (musl) vs Debian (glibc). Eso puede romper Next/SWC u otras dependencias nativas en runtime.
+La imagen pesada del navegador queda separada. Docker puede cachearla de forma independiente y no necesita reconstruirla cuando cambia codigo de la app.
 
-Si fuese necesario usar `node:20-alpine` entonces la mejor opción ya no sería “imagen de Puppeteer” como base, sino un servicio separado tipo browserless/chromium y conectar Puppeteer remotamente. Ahí tu app seguiría en Alpine y Chrome viviría en otro contenedor.
+## Por que no mezclar Alpine con una imagen Puppeteer
 
 No conviene construir dependencias en `node:20-alpine` y ejecutar en una imagen Puppeteer basada en Debian/Ubuntu.
 
 Alpine usa `musl`, mientras que Debian/Ubuntu usa `glibc`. Algunas dependencias nativas de Node, como binarios de Next/SWC u otros paquetes compilados, pueden instalar variantes distintas segun la distribucion. Copiar `node_modules` entre esas bases puede provocar errores en runtime.
 
-Por esa razon, si se usa `ghcr.io/puppeteer/puppeteer`, conviene usarla en todas las etapas relevantes del Dockerfile: `deps`, `builder` y `runner`.
-
-## Alternativa si se quiere conservar node:20-alpine
-
-Si en el futuro se quiere mantener la app en `node:20-alpine`, la opcion mas limpia es separar el navegador en otro contenedor, por ejemplo con Browserless o una imagen dedicada de Chromium.
-
-En ese esquema:
-
-- La app sigue ligera en Alpine.
-- Chromium vive en un servicio separado.
-- La app usa `puppeteer.connect()` en vez de `puppeteer.launch()`.
-
-Esto agrega complejidad operacional, pero puede ser mejor si se generan muchos PDFs o si se quiere escalar el navegador independientemente de la app.
+Por eso, si se usa la imagen oficial de Puppeteer como base, deberia usarse en todas las etapas relevantes. Como ese enfoque fue lento, se eligio separar Chromium en otro servicio.
 
 ## Resumen
 
-- Imagen oficial de Puppeteer: solucion simple y estable para este proyecto.
-- `node:20-alpine` + `apk add chromium`: funciona, pero puede volver lento el build. Esto último provocó que la build pasara de 300 segundos a 1000 segundos.
-- `node:20-alpine` + Browserless/Chromium separado: mejor separación, pero requiere cambios de codigo y otro servicio.
+- `node:20-alpine` + `apk add chromium`: funciona, pero hace lento el build.
+- `ghcr.io/puppeteer/puppeteer`: evita instalar Chromium manualmente, pero sigue siendo una base pesada.
+- `node:20-alpine` + Browserless/Chromium separado: mantiene la app ligera y separa el navegador en otro contenedor.

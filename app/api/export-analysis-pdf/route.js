@@ -29,11 +29,7 @@ export const POST = withApiUser(async ({ request }) => {
       selectedCurrency: body.selectedCurrency || "Sin divisa. (Original)"
     });
 
-    browser = await puppeteer.launch({
-      headless: true,
-      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
-      args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"]
-    });
+    browser = await createBrowser();
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: "load" });
     await page.emulateMediaType("print");
@@ -66,6 +62,20 @@ export const POST = withApiUser(async ({ request }) => {
     await browser?.close();
   }
 });
+
+function createBrowser() {
+  if (process.env.BROWSERLESS_WS_ENDPOINT) {
+    return puppeteer.connect({
+      browserWSEndpoint: process.env.BROWSERLESS_WS_ENDPOINT
+    });
+  }
+
+  return puppeteer.launch({
+    headless: true,
+    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
+    args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"]
+  });
+}
 
 function serializeError(error) {
   if (error instanceof Error) {

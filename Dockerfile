@@ -1,24 +1,20 @@
-FROM ghcr.io/puppeteer/puppeteer:24.43.1 AS deps
-USER root
+FROM node:20-alpine AS deps
 WORKDIR /app
 ENV PUPPETEER_SKIP_DOWNLOAD=true
 COPY package*.json ./
 RUN npm ci
 
-FROM ghcr.io/puppeteer/puppeteer:24.43.1 AS builder
-USER root
+FROM node:20-alpine AS builder
 WORKDIR /app
 ENV PUPPETEER_SKIP_DOWNLOAD=true
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
 
-FROM ghcr.io/puppeteer/puppeteer:24.43.1 AS runner
-USER root
+FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PUPPETEER_SKIP_DOWNLOAD=true
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
 
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/.next ./.next
