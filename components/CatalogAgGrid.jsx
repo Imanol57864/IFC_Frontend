@@ -505,6 +505,7 @@ async function exportPdf(api, currencyCacheRef, selectedCurrency) {
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
+      console.error("No se pudo generar el PDF en el servidor.", error.error || error);
       return alert(error.message || "No se pudo generar el PDF.");
     }
 

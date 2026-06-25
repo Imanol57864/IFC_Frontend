@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import puppeteer from "puppeteer";
+import { NextResponse } from "next/server";
 import { withApiUser } from "@/lib/api";
 import { jsonError, readJson } from "@/lib/http";
 import { analysisPdfTemplate } from "@/lib/analysisPdfTemplate";
@@ -54,10 +55,29 @@ export const POST = withApiUser(async ({ request }) => {
       }
     });
   } catch (error) {
-    // TO DO MANDAR EL ERROR AL USUARIO Y DIAGNOSTICARLO CON ALISON
     console.error("No se pudo generar el PDF con Puppeteer.", error);
-    return jsonError("No se pudo generar el PDF.", 500);
+    return NextResponse.json({
+      message: "No se pudo generar el PDF.",
+      data: [],
+      error: serializeError(error)
+    }, { status: 500 });
   } finally {
     await browser?.close();
   }
 });
+
+function serializeError(error) {
+  if (error instanceof Error) {
+    return {
+      name: error.name,
+      message: error.message,
+      stack: error.stack,
+      cause: serializeError(error.cause)
+    };
+  }
+
+  return {
+    name: typeof error,
+    message: String(error)
+  };
+}
