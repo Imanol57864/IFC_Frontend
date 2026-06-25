@@ -45,6 +45,7 @@ https://internationalfoodscontrol.duckdns.org/login
 - [x] [BUG] El signo de divisa no aparece al descargar PDF.
 - [x] Descarga de PDF de la vista actual formateada para catálogo de análisis.
 - [x] Agregar diseño profesional de la empresa a la exportación de PDF.
+- [x] [BUG] La creación de PDFs requiere tener chromium en el contenedor, por lo que ahora se instala con Dockerfile.
 
 ## Sesiones
 - [] Cuando ingresa una persona, saca a la otra si ingresa las mismas credenciales.
