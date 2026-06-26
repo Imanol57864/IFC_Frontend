@@ -6,7 +6,7 @@ https://internationalfoodscontrol.duckdns.org/login
 - [x] Proxying and cookies correctly implemented for prod env.
 - [] CRON job para obtener archivo .tar de la base de datos semanalmente.
 - [x] [BUG] Restablecer los archivos rotos manualmente desde backup.
-- [] Editar codigo_analisis y parchar todo lo que pueda provocar duplicación de IDs.
+- [] parchar Editar codigo_analisis y todo lo que pueda provocar duplicación de IDs.
 
 ## Laboratorios
 - [x] Los laboratorios se borran en modo LIVE.
@@ -26,8 +26,8 @@ https://internationalfoodscontrol.duckdns.org/login
 
 ## Archivos
 - [x] Los archivos se borran en modo LIVE.
-- [] Los archivos se crean en modo LIVE.
-- [] Los archivos se editan en modo LIVE. 
+- [x] Los archivos se crean en modo LIVE.
+- [x] Los archivos se editan en modo LIVE. 
 - [x] [BUG] Se genera un ciclo infinito de ediciones incorrectas que causan llamadas al backend.
 - [x] [BUG] La subida de un archivo con nombres que incluyen "ñ" y "acentos" hace que se cree un error. Esto afecta hasta el crear un análisis. (Fixed at `sanitizeFileName`).
 - [x] Los nombres de los archivos se normalizan antes de subirlos a la base de datos. (Se eliminan acentos, tildes, y Ñs).
