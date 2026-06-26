@@ -1,12 +1,10 @@
 ﻿# To Do List
 https://internationalfoodscontrol.duckdns.org/login
 
-
 ## Misc
 - [x] Proxying and cookies correctly implemented for prod env.
 - [] CRON job para obtener archivo .tar de la base de datos semanalmente.
 - [x] [BUG] Restablecer los archivos rotos manualmente desde backup.
-- [] parchar Editar codigo_analisis y todo lo que pueda provocar duplicación de IDs.
 
 ## Laboratorios
 - [x] Los laboratorios se borran en modo LIVE.
@@ -61,6 +59,7 @@ Auth token validation failed {
 - LIVE funciona con realtime enabled, RLS activado y sin polizas.
 - Revisar la carpeta ./context para más información.
 - Eliminar un laboratorio o análisis no borra los archivos (PDFs) y quedan resguardados a nivel raíz. La única manera de borrar PDFs es a través del tablero de cada análisis.
+- Debido al riesgo de crear registros ambiguos, no está permitido editar el código de un análisis. Sin embargo, sí es posible modificar la palabra clave utilizada para identificar los análisis de un laboratorio.
 
 ### Posibles adiciones
 - [LAST] [] Mejorar el diseño.
