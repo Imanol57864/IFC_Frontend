@@ -7,6 +7,7 @@ import {
   DEFAULT_GRID_OPTIONS,
   GRID_CLASS_NAME,
   GRID_STYLE,
+  RealtimeConnectionGate,
   applyRealtimeRowEvent,
   makeButton,
   postJson,
@@ -14,7 +15,8 @@ import {
   setRows,
   subscribeToTableChanges,
   useAgGrid,
-  useQuickFilter
+  useQuickFilter,
+  useRealtimeConnectionGate
 } from "./agGridShared";
 
 const DIVISAS = ["USD", "EUR", "MXN"];
@@ -24,6 +26,7 @@ export default function LaboratoriesAgGrid() {
   const gridRef = useRef(null);
   const rowsRef = useRef([]);
   const realtimeRef = useRef(null);
+  const { realtimeStatus, resetRealtimeStatus, handleRealtimeStatus } = useRealtimeConnectionGate();
 
   const apiRef = useAgGrid(gridRef, () => ({
     ...DEFAULT_GRID_OPTIONS,
@@ -68,7 +71,8 @@ export default function LaboratoriesAgGrid() {
   useEffect(() => {
     window.triggerGrid = loadLabs;
     loadLabs();
-    realtimeRef.current = createRealtimeSubscription(apiRef, rowsRef, loadLabs);
+    resetRealtimeStatus();
+    realtimeRef.current = createRealtimeSubscription(apiRef, rowsRef, loadLabs, handleRealtimeStatus);
     return () => {
       realtimeRef.current?.close();
       if (window.triggerGrid === loadLabs) delete window.triggerGrid;
@@ -103,13 +107,19 @@ export default function LaboratoriesAgGrid() {
     return () => returnHome?.removeEventListener("click", onClick);
   }, []);
 
-  return <div ref={gridRef} id="table" className={GRID_CLASS_NAME} style={GRID_STYLE} />;
+  return (
+    <>
+      <RealtimeConnectionGate status={realtimeStatus} />
+      <div ref={gridRef} id="table" className={GRID_CLASS_NAME} style={GRID_STYLE} />
+    </>
+  );
 }
 
-function createRealtimeSubscription(apiRef, rowsRef, reload) {
+function createRealtimeSubscription(apiRef, rowsRef, reload, onStatusChange) {
   return subscribeToTableChanges({
     channelName: "catLabos:laboratories-grid",
     table: "catLabos",
+    onStatusChange,
     onPayload: (payload) => applyRealtimeRowEvent({
       api: apiRef.current,
       rowsRef,

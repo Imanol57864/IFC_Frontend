@@ -1,11 +1,12 @@
 ﻿"use client";
 
 import { AllCommunityModule, ModuleRegistry, createGrid } from "ag-grid-community";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { getAuthenticatedBrowserSupabase } from "@/lib/supabaseBrowser";
 
 let modulesRegistered = false;
 let realtimeSubscriptionId = 0;
+const REALTIME_CONNECTED_STATUS = "SUBSCRIBED";
 
 export const DEFAULT_GRID_OPTIONS = {
   rowData: [],
@@ -116,13 +117,83 @@ export function applyRealtimeRowEvent({ api, rowsRef, data, idField, reload }) {
   }
 }
 
-export function subscribeToTableChanges({ channelName, table, onPayload }) { // filter, onPayload }) {
+export function useRealtimeConnectionGate() {
+  const [status, setStatus] = useState("CONNECTING");
+  const loadScreenActiveRef = useRef(false);
+  const activateLoadScreenTimerRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (activateLoadScreenTimerRef.current) {
+        window.clearTimeout(activateLoadScreenTimerRef.current);
+        activateLoadScreenTimerRef.current = null;
+      }
+      if (loadScreenActiveRef.current) {
+        window.deactivateLoadScreen?.();
+        loadScreenActiveRef.current = false;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (status === REALTIME_CONNECTED_STATUS) {
+      if (activateLoadScreenTimerRef.current) {
+        window.clearTimeout(activateLoadScreenTimerRef.current);
+        activateLoadScreenTimerRef.current = null;
+      }
+      if (loadScreenActiveRef.current) {
+        window.deactivateLoadScreen?.();
+        loadScreenActiveRef.current = false;
+      }
+      return;
+    }
+
+    if (!loadScreenActiveRef.current && !activateLoadScreenTimerRef.current) {
+      const activateLoadScreen = () => {
+        if (!window.activateLoadScreen) {
+          activateLoadScreenTimerRef.current = window.setTimeout(activateLoadScreen, 50);
+          return;
+        }
+
+        window.activateLoadScreen();
+        loadScreenActiveRef.current = true;
+        activateLoadScreenTimerRef.current = null;
+      };
+
+      activateLoadScreen();
+    }
+  }, [status]);
+
+  const resetRealtimeStatus = useCallback(() => {
+    setStatus("CONNECTING");
+  }, []);
+
+  const handleRealtimeStatus = useCallback((nextStatus, error) => {
+    const resolvedStatus = nextStatus || (error ? "AUTH_ERROR" : "CONNECTING");
+    setStatus(resolvedStatus);
+  }, []);
+
+  return {
+    realtimeStatus: status,
+    isRealtimeConnected: status === REALTIME_CONNECTED_STATUS,
+    resetRealtimeStatus,
+    handleRealtimeStatus
+  };
+}
+
+export function RealtimeConnectionGate({ status }) {
+  return status === REALTIME_CONNECTED_STATUS ? null : <span className="sr-only" role="status" aria-live="polite">Conectando en tiempo real...</span>;
+}
+
+export function subscribeToTableChanges({ channelName, table, onPayload, onStatusChange }) { // filter, onPayload }) {
   const changes = { event: "*", schema: "public", table };
   // if (filter) changes.filter = filter;
   const subscriptionName = `${channelName}:${++realtimeSubscriptionId}`;
   let channel = null;
   let closed = false;
   let closePromise = null;
+
+  onStatusChange?.("CONNECTING");
 
   const startPromise = getAuthenticatedBrowserSupabase()
     .then((supabase) => {
@@ -132,6 +203,7 @@ export function subscribeToTableChanges({ channelName, table, onPayload }) { // 
         .channel(subscriptionName)
         .on("postgres_changes", changes, onPayload)
         .subscribe((status, error) => {
+          if (!closed) onStatusChange?.(status, error);
           if (error || status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
             console.error("Supabase realtime subscription failed", { channelName, status, error });
           }
@@ -141,6 +213,7 @@ export function subscribeToTableChanges({ channelName, table, onPayload }) { // 
     })
     .catch((error) => {
       console.error("Supabase realtime authentication failed", { channelName, error });
+      if (!closed) onStatusChange?.("AUTH_ERROR", error);
       return null;
     });
 

@@ -6,6 +6,7 @@ import {
   DEFAULT_GRID_OPTIONS,
   GRID_CLASS_NAME,
   GRID_STYLE,
+  RealtimeConnectionGate,
   makeButton,
   postJson,
   readJsonResponse,
@@ -13,7 +14,8 @@ import {
   setRows,
   subscribeToTableChanges,
   useAgGrid,
-  useQuickFilter
+  useQuickFilter,
+  useRealtimeConnectionGate
 } from "./agGridShared";
 
 const FILE_FIELD = "analisis_file";
@@ -23,6 +25,7 @@ export default function FilesAgGrid({ idAnalisis }) {
   const gridRef = useRef(null);
   const rowsRef = useRef([]);
   const realtimeRef = useRef(null);
+  const { realtimeStatus, resetRealtimeStatus, handleRealtimeStatus } = useRealtimeConnectionGate();
 
   const apiRef = useAgGrid(gridRef, () => ({
     ...DEFAULT_GRID_OPTIONS,
@@ -70,9 +73,11 @@ export default function FilesAgGrid({ idAnalisis }) {
     window.triggerGrid = loadFiles;
     loadFiles();
     realtimeRef.current?.close();
+    resetRealtimeStatus();
     realtimeRef.current = subscribeToTableChanges({
       channelName: `Archivo_Analisis:${idAnalisis}`,
       table: "Archivo_Analisis",
+      onStatusChange: handleRealtimeStatus,
       onPayload: (payload) => {
         if (filePayloadMatchesAnalysis(payload, idAnalisis)) loadFiles();
       }
@@ -121,7 +126,12 @@ export default function FilesAgGrid({ idAnalisis }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idAnalisis]);
 
-  return <div ref={gridRef} id="table" className={GRID_CLASS_NAME} style={GRID_STYLE} />;
+  return (
+    <>
+      <RealtimeConnectionGate status={realtimeStatus} />
+      <div ref={gridRef} id="table" className={GRID_CLASS_NAME} style={GRID_STYLE} />
+    </>
+  );
 }
 
 function openFileRenderer(params) {

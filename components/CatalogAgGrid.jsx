@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useEffect, useRef } from "react";
-import { DEFAULT_GRID_OPTIONS, GRID_CLASS_NAME, GRID_STYLE, applyRealtimeRowEvent, makeButton, postJson, readJsonResponse, sendCellChange, setRows, subscribeToTableChanges, useAgGrid, useQuickFilter } from "./agGridShared";
+import { DEFAULT_GRID_OPTIONS, GRID_CLASS_NAME, GRID_STYLE, RealtimeConnectionGate, applyRealtimeRowEvent, makeButton, postJson, readJsonResponse, sendCellChange, setRows, subscribeToTableChanges, useAgGrid, useQuickFilter, useRealtimeConnectionGate } from "./agGridShared";
 import { analysisPayloadEventForLab } from "@/lib/realtimePayloads";
 import { CURRENCY_RATES_CHANGED_EVENT } from "./CurrencyRateInputs";
 
@@ -35,6 +35,7 @@ export default function CatalogAgGrid() {
   const divisaDestinoRef = useRef(null);
   const analysisRealtimeRef = useRef(null);
   const labRealtimeRef = useRef(null);
+  const { realtimeStatus, resetRealtimeStatus, handleRealtimeStatus } = useRealtimeConnectionGate();
 
   const apiRef = useAgGrid(gridRef, () => ({
     ...DEFAULT_GRID_OPTIONS,
@@ -97,9 +98,11 @@ export default function CatalogAgGrid() {
 
   function createAnalysisRealtime() {
     analysisRealtimeRef.current?.close();
+    resetRealtimeStatus();
     analysisRealtimeRef.current = subscribeToTableChanges({
       channelName: `catAnalisis`,
       table: "catAnalisis",
+      onStatusChange: handleRealtimeStatus,
       onPayload: (payload) => {
         const data = analysisPayloadEventForLab(payload);
         if (data) handleAnalisisEvent(data);
@@ -200,7 +203,12 @@ export default function CatalogAgGrid() {
     };
   }, []);
 
-  return <div ref={gridRef} id="table" className={GRID_CLASS_NAME} style={GRID_STYLE} />;
+  return (
+    <>
+      <RealtimeConnectionGate status={realtimeStatus} />
+      <div ref={gridRef} id="table" className={GRID_CLASS_NAME} style={GRID_STYLE} />
+    </>
+  );
 }
 
 async function createAnalysis(reload) {

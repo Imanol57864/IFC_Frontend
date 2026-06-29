@@ -45,6 +45,7 @@ https://internationalfoodscontrol.duckdns.org/login
 
 ## Sesiones
 - [x] [BUG] Los tokens no tenían arquitectura de refresh. Se implementó setSession de Supabase client.
+- [] [BUG] La sesión para modo LIVE falla aleatoriamente. Colocar una restricción que evite el uso de la página web hasta que la subscripción de realtime otorgue un status conectado.
 - [] Crear vistas para los usuarios que no son area administrativa.
 views, y que las columnas se muestren solo si existe el atributo en data.data, asi bien escalable cawn
 - [] Cuando ingresa una persona, saca a la otra si ingresa las mismas credenciales.
