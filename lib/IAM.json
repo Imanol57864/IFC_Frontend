@@ -1,0 +1,36 @@
+{
+    "1": {
+        "analisis": {
+            "function_01": true,
+            "function_02": false,
+            "function_03": true
+        },
+        "labos": {
+            "function_01": true,
+            "function_02": false,
+            "function_03": true
+        },
+        "archivos": {
+            "function_01": true,
+            "function_02": false,
+            "function_03": true
+        }
+    },
+    "2": {
+        "analisis": {
+            "function_01": true,
+            "function_02": false,
+            "function_03": true
+        },
+        "labos": {
+            "function_01": true,
+            "function_02": false,
+            "function_03": true
+        },
+        "archivos": {
+            "function_01": true,
+            "function_02": false,
+            "function_03": true
+        }
+    }
+}

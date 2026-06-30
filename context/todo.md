@@ -39,15 +39,20 @@ https://internationalfoodscontrol.duckdns.org/login
 
 ## Reportes
 - [x] [BUG] El signo de divisa no aparece al descargar PDF.
-- [x] Descarga de PDF de la vista actual formateada para catálogo de análisis.
+- [] Descarga de PDF de la vista actual formateada para catálogo de análisis.
 - [x] Agregar diseño profesional de la empresa a la exportación de PDF.
 - [x] [BUG] La creación de PDFs requiere tener chromium en el contenedor, por lo que ahora se instala con Dockerfile.
 
 ## Sesiones
+! Add the rules of deny, like ACL. Add always remember, permit Any:Any
+! No hay manera, el área ID tiene que llegar y decidir que mostrar en el frontend.
+// Todo está permitido por defecto
+// La lista de atributos debe contener únicamente atributos 
+    // donde queremos generar una diferencia de accesso al recurso.
+- [] IAM.json, role based access control.
 - [x] [BUG] Los tokens no tenían arquitectura de refresh. Se implementó setSession de Supabase client.
 - [x] [BUG] La sesión para modo LIVE falla aleatoriamente. Colocar una restricción que evite el uso de la página web hasta que la subscripción de realtime otorgue un status conectado.
-- [] Crear vistas para los usuarios que no son area administrativa.
-views, y que las columnas se muestren solo si existe el atributo en data.data, asi bien escalable cawn
+- [] Vistas del área operativa se aplicaron correctamente a toda la App.
 - [] Cuando ingresa una persona, saca a la otra si ingresa las mismas credenciales.
 
 ## Notas del desarrollador
