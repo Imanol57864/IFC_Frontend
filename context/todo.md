@@ -44,10 +44,13 @@ https://internationalfoodscontrol.duckdns.org/login
 - [x] [BUG] La creación de PDFs requiere tener chromium en el contenedor, por lo que ahora se instala con Dockerfile.
 
 ## Sesiones
-- [] IAM.json, role based access control.
+// todo access_view (load_data) deberá usar un rpc que llame a una view indicada, jamás un read de la tabla puro.
+- [x] IAM.json, role based access control.
 - [x] [BUG] Los tokens no tenían arquitectura de refresh. Se implementó setSession de Supabase client.
 - [x] [BUG] La sesión para modo LIVE falla aleatoriamente. Colocar una restricción que evite el uso de la página web hasta que la subscripción de realtime otorgue un status conectado.
-- [] Vistas del área operativa se aplicaron correctamente a toda la App.
+- [x] RBAC aplicado al tablero de análisis.
+- [] RBAC aplicado al tablero de laboratorios.
+- [] RBAC aplicado al tablero de archivos.
 - [] Cuando ingresa una persona, saca a la otra si ingresa las mismas credenciales.
 
 ## Notas del desarrollador
@@ -56,6 +59,9 @@ https://internationalfoodscontrol.duckdns.org/login
 - Eliminar un laboratorio o análisis no borra los archivos (PDFs) y quedan resguardados a nivel raíz. La única manera de borrar PDFs es a través del tablero de cada análisis.
 - Debido al riesgo de crear registros ambiguos, no está permitido editar el código de un análisis. Sin embargo, sí es posible modificar la palabra clave utilizada para identificar los análisis de un laboratorio.
 - Los permisos funcionan tal que un diagrama de Venn, lo que se permite ya se construyó (g1), lo que no se permite no se construyó (g2), y la intersección de g1-g2 es donde existe el archivo [IAM.json](lib/IAM.json) que funciona como Policy Decision Point (PDP).
+
+## Descripción de IAM.json
+// To Do
 
 ### Posibles adiciones
 - [LAST] [] Mejorar el diseño.

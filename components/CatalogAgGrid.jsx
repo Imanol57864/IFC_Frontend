@@ -5,6 +5,9 @@ import { DEFAULT_GRID_OPTIONS, GRID_CLASS_NAME, GRID_STYLE, RealtimeConnectionGa
 import { analysisPayloadEventForLab } from "@/lib/realtimePayloads";
 import { CURRENCY_RATES_CHANGED_EVENT } from "./CurrencyRateInputs";
 
+import { canUseIam } from "@/lib/iam";
+import { useUserArea } from "@/components/UserAreaContext";
+
 const DESCRIPTION_FIELDS = {
   desc_toptext: "Nombre: ",
   desc_metodo: "Metodología: ",
@@ -29,6 +32,8 @@ const expandedDescriptionRows = new Set();
 const FILE_FIELD = "analisis_file";
 
 export default function CatalogAgGrid() {
+  const { areaId } = useUserArea();
+  const iamArea = "analisis";
   const gridRef = useRef(null);
   const rowsRef = useRef([]);
   const rowCurrencyCacheRef = useRef(new Map());
@@ -37,30 +42,33 @@ export default function CatalogAgGrid() {
   const labRealtimeRef = useRef(null);
   const { realtimeStatus, resetRealtimeStatus, handleRealtimeStatus } = useRealtimeConnectionGate();
 
+  const canCreateEditData = canUseIam(iamArea, "create_update_actions", areaId);
+
   const apiRef = useAgGrid(gridRef, () => ({
     ...DEFAULT_GRID_OPTIONS,
     getRowId: (params) => String(params.data.id_analisis),
     columnDefs: [
-      { headerName: "Código", field: "codigo_completo", editable: false, width: 140, cellEditor: "agTextCellEditor", pinned: 'left'},
+      { headerName: "Código", field: "codigo_completo", width: 140, cellEditor: "agTextCellEditor", pinned: 'left'},
       { headerName: "Laboratorio", field: "id_catLabos", width: 140, },
       { headerName: "Descripción", field: "descripcion", cellRenderer: descriptionRenderer, width: 430, autoHeight: true, wrapText: true, sortable: false },
-      { headerName: "Cantidad", field: "y_cantidad", editable: true, width: 140, cellEditor: "agNumberCellEditor", valueParser: numberParser },
-      { headerName: "Precio", field: "y_precio", width: 140, valueFormatter: (params) => currencyFormatter(params, rowCurrencyCacheRef, divisaDestinoRef) },
-      { headerName: "Categoría", field: "y_categoria", editable: true, cellEditor: "agSelectCellEditor", cellEditorParams: { values: CATEGORY_OPTIONS }, width: 220 },
-      { headerName: "Costo", field: "c_costo", editable: true, width: 140, cellEditor: "agNumberCellEditor", valueParser: numberParser, valueFormatter: (params) => costCurrencyFormatter(params, rowCurrencyCacheRef) },
-      { headerName: "Factor", field: "c_factor", editable: true, width: 140, cellEditor: "agNumberCellEditor", valueParser: numberParser },
-      { headerName: "Envío", field: "c_envio", editable: true, width: 140, cellEditor: "agNumberCellEditor", valueParser: numberParser, valueFormatter: (params) => currencyFormatter(params, rowCurrencyCacheRef, divisaDestinoRef) },
-      { headerName: "Utilidad", field: "c_utilidad", width: 140, valueFormatter: (params) => currencyFormatter(params, rowCurrencyCacheRef, divisaDestinoRef) },
-      { headerName: "Acciones", cellRenderer: actionsRenderer, width: 110, sortable: false, filter: false },
-      { headerName: "Archivos", cellRenderer: filesViewRenderer, width: 140, sortable: false, filter: false },
+      { headerName: "Cantidad", field: "y_cantidad", hide: !canUseIam(iamArea, "cantidad_clm", areaId), editable: canCreateEditData, width: 140, cellEditor: "agNumberCellEditor", valueParser: numberParser },
+      { headerName: "Precio", field: "y_precio", hide: !canUseIam(iamArea, "precio_clm", areaId), width: 140, valueFormatter: (params) => currencyFormatter(params, rowCurrencyCacheRef, divisaDestinoRef) },
+      { headerName: "Categoría", field: "y_categoria", hide: !canUseIam(iamArea, "categoria_clm", areaId), editable: canCreateEditData, cellEditor: "agSelectCellEditor", cellEditorParams: { values: CATEGORY_OPTIONS }, width: 220 },
+      { headerName: "Costo", field: "c_costo", hide: !canUseIam(iamArea, "costo_clm", areaId), editable: canCreateEditData, width: 140, cellEditor: "agNumberCellEditor", valueParser: numberParser, valueFormatter: (params) => costCurrencyFormatter(params, rowCurrencyCacheRef) },
+      { headerName: "Factor", field: "c_factor", hide: !canUseIam(iamArea, "factor_clm", areaId), editable: canCreateEditData, width: 140, cellEditor: "agNumberCellEditor", valueParser: numberParser },
+      { headerName: "Envío", field: "c_envio", hide: !canUseIam(iamArea, "envio_clm", areaId), editable: canCreateEditData, width: 140, cellEditor: "agNumberCellEditor", valueParser: numberParser, valueFormatter: (params) => currencyFormatter(params, rowCurrencyCacheRef, divisaDestinoRef) },
+      { headerName: "Utilidad", field: "c_utilidad", hide: !canUseIam(iamArea, "utilidad_clm", areaId), width: 140, valueFormatter: (params) => currencyFormatter(params, rowCurrencyCacheRef, divisaDestinoRef) },
+      { headerName: "Borrar", hide: !canUseIam(iamArea, "delete_actions", areaId), cellRenderer: actionsRenderer, width: 110, sortable: false, filter: false },
+      { headerName: "Archivos", hide: !canUseIam("files", "access_view", areaId), cellRenderer: filesViewRenderer, width: 140, sortable: false, filter: false },
       //
-      { headerName: "ID", field: "id_analisis", editable: false, hide: true, pinned: 'left' },
+      { headerName: "ID", field: "id_analisis", hide: true, pinned: 'left' },
       { headerName: "Divisa", field: "catLabos.divisa_lab", valueGetter: (params) => rowCurrency(params.data, rowCurrencyCacheRef), hide: true },
       ...Object.keys(DESCRIPTION_FIELDS).map((field) => ({ field, hide: true }))
     ],
     context: {
       reload: () => loadAnalisis(),
       closeSources,
+      canCreateEditData,
       descriptionFields: DESCRIPTION_FIELDS
     },
     onCellValueChanged: async (event) => {
@@ -182,17 +190,22 @@ export default function CatalogAgGrid() {
     const onEurClick = () => setNewDivisa("EUR");
     const onRatesChanged = () => apiRef.current?.refreshCells({ force: true });
 
+    // DIVISAS BUTTONS
     mxnButton?.addEventListener("click", onMxnClick);
     usdButton?.addEventListener("click", onUsdClick);
     eurButton?.addEventListener("click", onEurClick);
     window.addEventListener(CURRENCY_RATES_CHANGED_EVENT, onRatesChanged);
+
+    // PDF REPORT BUTTON
     const pdfButton = document.getElementById("download-pdf");
     const onPdfClick = () => exportPdf(apiRef.current, rowCurrencyCacheRef, divisaDestinoRef.current);
     pdfButton?.addEventListener("click", onPdfClick);
+
+    // CREATE ANALYSIS BUTTON
     const createButton = document.getElementById("create-analysis");
     const onCreateClick = () => createAnalysis(loadAnalisis);
     createButton?.addEventListener("click", onCreateClick);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+
     return () => {
       mxnButton?.removeEventListener("click", onMxnClick);
       usdButton?.removeEventListener("click", onUsdClick);
@@ -265,6 +278,7 @@ function pdfDescriptionText(data) {
 }
 
 function descriptionRenderer(params) {
+  const canCreateEditData = params.context?.canCreateEditData;
   const wrapper = document.createElement("div");
   const data = params.data;
   const rowId = String(data.id_analisis);
@@ -321,17 +335,20 @@ function descriptionRenderer(params) {
       resetDescriptionHeight();
     });
 
-    const editButton = document.createElement("button");
-    editButton.type = "button";
-    editButton.className = "description-link";
-    editButton.textContent = "Editar";
-    editButton.addEventListener("click", async (event) => {
-      event.stopPropagation();
-      await editDescription();
-    });
+    // EDIT DESCRIPTION BUTTON
+    if (canCreateEditData) {
+      const editButton = document.createElement("button");
+      editButton.type = "button";
+      editButton.className = "description-link";
+      editButton.textContent = "Editar";
+      editButton.addEventListener("click", async (event) => {
+        event.stopPropagation();
+        await editDescription();
+      });
+      actions.appendChild(editButton);
+    }
 
     actions.appendChild(toggleButton);
-    actions.appendChild(editButton);
     toolbar.appendChild(actions);
 
     const content = document.createElement("div");

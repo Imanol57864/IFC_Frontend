@@ -1,20 +1,33 @@
 {
     "analisis": {
-        "access_view": true,
-        "read_data": true,
-        "cud_data": [1],
+        "access_view": [1, 3, 2],
 
-        "money_funcs": [1],
-        "money_columns": [1]
+        "create_update_actions": [1, 2],
+        "delete_actions": [1],
+        "money_actions": [1, 2],
+        "report_actions": [1, 2], 
+
+        "cantidad_clm": [1, 2],
+        "precio_clm": [1, 2],
+        "categoria_clm": [1, 2],
+        "costo_clm": [1, 2],
+        "factor_clm": [1, 2],
+        "envio_clm": [1, 2],
+        "utilidad_clm": [1, 2]
     },
     "labs": {
-        "access_view": [1],
-        "read_data": [1],
-        "cud_data": [1]
+        "access_view": [1, 4, 2],
+        
+        "create_update_actions": [1, 2],
+        "delete_actions": [1],
+
+        "divisa_clm": [1, 2],
+        "cobertura_clm": [1, 2],
+        "codigo_clm": [1, 2]
     },
     "files": {
-        "access_view": [1],
-        "read_data": [1], 
-        "cud_data": [1]
+        "access_view": [1, 2],
+        
+        "delete_actions": [1]
     }
 }
