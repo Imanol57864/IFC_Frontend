@@ -48,9 +48,9 @@ export default function CatalogAgGrid() {
     ...DEFAULT_GRID_OPTIONS,
     getRowId: (params) => String(params.data.id_analisis),
     columnDefs: [
-      { headerName: "Código", field: "codigo_completo", width: 140, cellEditor: "agTextCellEditor", pinned: 'left'},
-      { headerName: "Laboratorio", field: "id_catLabos", width: 140, },
-      { headerName: "Descripción", field: "descripcion", cellRenderer: descriptionRenderer, width: 430, autoHeight: true, wrapText: true, sortable: false },
+      { headerName: "Código", field: "codigo_completo", hide: !canUseIam(iamArea, "codigo_clm", areaId), width: 140, cellEditor: "agTextCellEditor", pinned: 'left'},
+      { headerName: "Laboratorio", field: "id_catLabos", hide: !canUseIam(iamArea, "labname_clm", areaId), width: 140, },
+      { headerName: "Descripción", field: "descripcion", hide: !canUseIam(iamArea, "desc_clm", areaId), cellRenderer: descriptionRenderer, width: 430, autoHeight: true, wrapText: true, sortable: false },
       { headerName: "Cantidad", field: "y_cantidad", hide: !canUseIam(iamArea, "cantidad_clm", areaId), editable: canCreateEditData, width: 140, cellEditor: "agNumberCellEditor", valueParser: numberParser },
       { headerName: "Precio", field: "y_precio", hide: !canUseIam(iamArea, "precio_clm", areaId), width: 140, valueFormatter: (params) => currencyFormatter(params, rowCurrencyCacheRef, divisaDestinoRef) },
       { headerName: "Categoría", field: "y_categoria", hide: !canUseIam(iamArea, "categoria_clm", areaId), editable: canCreateEditData, cellEditor: "agSelectCellEditor", cellEditorParams: { values: CATEGORY_OPTIONS }, width: 220 },

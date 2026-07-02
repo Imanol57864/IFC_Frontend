@@ -16,6 +16,7 @@ export const metadata = {
 export default async function FilesPage({ params }) {
   const { supabase, user, areaId } = await requirePageUser();
   if (!canUseIam("files", "access_view", areaId)) notFound();
+  const canViewAnalisis = canUseIam("analisis", "access_view", areaId);
 
   const { id_analisis: idAnalisis } = await params;
   const { data, error } = await supabase.from("catAnalisis").select("codigo_completo").eq("id_analisis", idAnalisis);
@@ -37,7 +38,7 @@ export default async function FilesPage({ params }) {
             <h3 id="id_analisis_div" className="analysis-id-card">
               {codigoDisplay}
             </h3>
-            <BackToDashboard />
+            {canViewAnalisis && <BackToDashboard/>}
           </PanelToolbar>
         </Panel>
 

@@ -9,7 +9,7 @@ import CatalogAgGrid from "@/components/LazyCatalogAgGrid";
 import CurrencyRateInputs from "@/components/CurrencyRateInputs";
 import { Panel, PanelBody } from "@/components/Panel";
 import { canUseIam } from "@/lib/iam";
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 
 export const metadata = {
   title: "IFC | Análisis"
@@ -17,7 +17,10 @@ export const metadata = {
 
 export default async function CatalogPage() {
   const { user, areaId } = await requirePageUser();
-  if (!canUseIam("analisis", "access_view", areaId)) notFound();
+
+  // Hacky :)
+  if (!canUseIam("analisis", "access_view", areaId)) redirect("/main_catalog/laboratories");
+
   const canUseMoneyActions = canUseIam("analisis", "money_actions", areaId);
   const canUseReportActions = canUseIam("analisis", "report_actions", areaId);
   const canCreateUpdateAnalisis = canUseIam("analisis", "create_update_actions", areaId);

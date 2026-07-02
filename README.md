@@ -1,4 +1,4 @@
-﻿# To Do List
+﻿# P. Gestión de análisis 2026 - International Foods Control
 https://internationalfoodscontrol.duckdns.org/login
 
 ## Misc
@@ -61,9 +61,47 @@ https://internationalfoodscontrol.duckdns.org/login
 - Los permisos funcionan tal que un diagrama de Venn, lo que se permite ya se construyó (g1), lo que no se permite no se construyó (g2), y la intersección de g1-g2 es donde existe el archivo [IAM.json](lib/IAM.json) que funciona como Policy Decision Point (PDP).
 
 ## Descripción de IAM.json
-// To Do
+Este .json controla principalmente visibilidad y acciones de UI. Para seguridad real, los endpoints y Supabase RLS deben validar permisos del lado servidor/base de datos.
 
-### Posibles adiciones
+- `lib/IAM.json` define permisos por modulo usando el `areaId` del usuario.
+- Valor `true`: acceso permitido para cualquier area.
+- Valor `[1, 2]`: acceso permitido solo si `areaId` esta incluido en el array.
+- Valor `false` ó `null`: acceso denegado.
+- Los nombres exactos de las areas dependen de la base de datos.
+
+### Analisis
+- Area `1`: acceso completo a analisis, incluyendo borrar.
+- Area `2`: puede ver, crear/editar, usar dinero y reportes, pero no borrar.
+- Area `3`: solo lectura basica de analisis; ve codigo, laboratorio y descripcion, pero no datos monetarios/operativos.
+- Area `4`: no tiene acceso a analisis.
+- `access_view`: areas `1`, `2`, `3` pueden entrar a la vista de analisis.
+- `create_update_actions`: areas `1`, `2` pueden crear y editar datos.
+- `delete_actions`: solo area `1` puede borrar.
+- `money_actions`: areas `1`, `2` pueden usar acciones de divisas/tipos de cambio.
+- `report_actions`: areas `1`, `2` pueden generar reportes PDF.
+- `codigo_clm`, `labname_clm`, `desc_clm`: areas `1`, `2`, `3`.
+- `cantidad_clm`, `precio_clm`, `categoria_clm`, `costo_clm`, `factor_clm`, `envio_clm`, `utilidad_clm`: areas `1`, `2`.
+
+
+### Laboratorios
+- Area `1`: acceso completo a laboratorios, incluyendo borrar.
+- Area `2`: puede ver y editar laboratorios, pero no borrar.
+- Area `4`: lectura basica de laboratorios; no ve columnas internas como divisa, cobertura o codigo.
+- Area `3`: no tiene acceso a laboratorios.
+- `access_view`: areas `1`, `2`, `4` pueden entrar a laboratorios.
+- `create_update_actions`: areas `1`, `2` pueden crear y editar.
+- `delete_actions`: solo area `1` puede borrar.
+- `labname_clm`, `pais_clm`, `direccion_clm`, `contacto_clm`: areas `1`, `2`, `4`.
+- `divisa_clm`, `cobertura_clm`, `codigo_clm`: areas `1`, `2`.
+
+### Archivos
+- Area `1`: puede ver y borrar archivos.
+- Area `2`: puede ver archivos, pero no borrar.
+- Areas `3`, `4`: no tienen acceso a archivos.
+- `access_view`: areas `1`, `2` pueden entrar o consultar archivos.
+- `delete_actions`: solo area `1` puede borrar archivos.
+
+## Posibles adiciones
 - [LAST] [] Mejorar el diseño.
 - [] Filtros especiales en el tablero de análisis.
 - [] Mejorar la UX de crear laboratorio.

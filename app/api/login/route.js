@@ -25,7 +25,7 @@ export async function POST(request) {
           message = error;
         }
       } else {
-        const redirectTo = "/main_catalog/laboratories";
+        const redirectTo = "/main_catalog";
         const response = expectsJson
           ? NextResponse.json({ ok: true, redirectTo })
           : NextResponse.redirect(getPublicUrl(request, redirectTo), { status: 303 });

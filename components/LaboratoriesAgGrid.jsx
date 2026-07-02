@@ -39,13 +39,13 @@ export default function LaboratoriesAgGrid() {
     defaultColDef: { ...DEFAULT_GRID_OPTIONS.defaultColDef, editable: true },
     columnDefs: [
       { headerName: "Borrar", hide: !canUseIam(iamArea, "delete_actions", areaId), cellRenderer: actionsRenderer, width: 170, editable: false, sortable: false, filter: false, autoHeight: true },
-      { headerName: "Laboratorio", field: "nombre_lab", editable: canCreateEditData, width: 190, cellEditor: "agTextCellEditor" },
-      { headerName: "Pais", field: "pais_lab", editable: canCreateEditData, width: 160, cellEditor: "agSelectCellEditor", cellEditorParams: () => ({ values: countryData }) },
+      { headerName: "Laboratorio", field: "nombre_lab", hide: !canUseIam(iamArea, "labname_clm", areaId), editable: canCreateEditData, width: 190, cellEditor: "agTextCellEditor" },
+      { headerName: "Pais", field: "pais_lab", hide: !canUseIam(iamArea, "pais_clm", areaId), editable: canCreateEditData, width: 160, cellEditor: "agSelectCellEditor", cellEditorParams: () => ({ values: countryData }) },
       { headerName: "Divisa", field: "divisa_lab", hide: !canUseIam(iamArea, "divisa_clm", areaId), editable: canCreateEditData, width: 135, cellEditor: "agSelectCellEditor", cellEditorParams: { values: DIVISAS } },
       { headerName: "Cobertura", field: "cobertura_lab", hide: !canUseIam(iamArea, "cobertura_clm", areaId), editable: canCreateEditData, width: 210, cellEditor: "agSelectCellEditor", cellEditorParams: { values: COBERTURAS } },
       { headerName: "Código", field: "codigo_lab", hide: !canUseIam(iamArea, "codigo_clm", areaId), editable: canCreateEditData, width: 135, cellEditor: "agTextCellEditor" },
-      { headerName: "Dirección", field: "direccion_lab", editable: canCreateEditData, width: 230, cellEditor: "agLargeTextCellEditor",  cellEditorPopup: true, wrapText: true, autoHeight: true },
-      { headerName: "Contacto", field: "contacto_lab", editable: canCreateEditData, width: 220, cellEditor: "agLargeTextCellEditor", cellEditorPopup: true, wrapText: true, autoHeight: true }
+      { headerName: "Dirección", field: "direccion_lab", hide: !canUseIam(iamArea, "direccion_clm", areaId), editable: canCreateEditData, width: 230, cellEditor: "agLargeTextCellEditor",  cellEditorPopup: true, wrapText: true, autoHeight: true },
+      { headerName: "Contacto", field: "contacto_lab", hide: !canUseIam(iamArea, "contacto_clm", areaId), editable: canCreateEditData, width: 220, cellEditor: "agLargeTextCellEditor", cellEditorPopup: true, wrapText: true, autoHeight: true }
     ],
     context: { reload: loadLabs },
     onCellValueChanged: async (event) => {
